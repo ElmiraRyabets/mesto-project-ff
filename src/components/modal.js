@@ -7,17 +7,17 @@ export function closeModal(popup) {
 export function openModal(popup) {
   popup.classList.add("popup_is-opened");
   popup.addEventListener("mousedown", closeModalByOverlay);
-  document.addEventListener("keydown", (event) => closeModalByEsc(event, popup));
+  document.addEventListener("keydown", closeModalByEsc);
 }
 
 function closeModalByOverlay(event) {
-  const popup = document.querySelector('.popup_is-opened');
-  const popupContent = event.target.closest(".popup__content");
-  if (popupContent === null) {
-    closeModal(popup);
-  }
+    if (event.target === event.currentTarget) {
+      closeModal(event.target);
+    } 
 }
-function closeModalByEsc(event, popup) {
+
+function closeModalByEsc(event) {
+  const popup = document.querySelector('.popup_is-opened');
   if (event.key == "Escape") {
     closeModal(popup);
   }

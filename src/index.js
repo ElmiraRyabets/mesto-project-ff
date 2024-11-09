@@ -107,10 +107,10 @@ addFormElement.addEventListener("submit",  () => closeModal(popupTypeNewCard));
 addFormElement.addEventListener("submit", () => addFormElement.reset());
 
 /*открыть картинку*/
-export function openImage(cardImage, textArea) {
+export function openImage(imagePath, tittle) {
   openModal(popupTypeImage);
-  popupImage.src = cardImage.src;
-  popupImage.alt = textArea.textContent;
-  popupCaption.textContent = textArea.textContent;
+  popupImage.src = imagePath;
+  popupImage.alt = tittle;
+  popupCaption.textContent = tittle;
 }
 

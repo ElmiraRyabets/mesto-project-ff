@@ -8,16 +8,16 @@ export function createCard(
 ) {
   const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
   const cardImage = cardElement.querySelector(".card__image");
+  const textArea =  cardElement.querySelector(".card__title")
   cardImage.src = imagePath;
-  cardElement.querySelector(".card__description .card__title").textContent =
-    title;
+  textArea.textContent = title;
   const deleteButton = cardElement.querySelector(".card__delete-button");
   deleteButton.addEventListener("click", () => deleteCard(cardElement));
   const likeButton = cardElement.querySelector(".card__like-button");
   likeButton.addEventListener("click", () => like(likeButton));
 
-  const textArea =  cardElement.querySelector(".card__title")
-  cardImage.addEventListener("click", () => openImage(cardImage, textArea));
+
+  cardImage.addEventListener("click", () => openImage(imagePath, title));
   return cardElement;
 }
 
