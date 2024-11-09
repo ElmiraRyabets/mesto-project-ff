@@ -1,12 +1,6 @@
-import {
-  initialCards
-} from "./components/cards.js";
-import {
-  createCard,
-  deleteCard,
-  like
-} from "./components/card.js";
-import { openModal, closeModal} from "./components/modal.js";
+import { initialCards } from "./components/cards.js";
+import { createCard, deleteCard, like } from "./components/card.js";
+import { openModal, closeModal } from "./components/modal.js";
 import "./index.css";
 
 const popupTypeImage = document.querySelector(".popup_type_image");
@@ -89,7 +83,7 @@ function handleEditFormSubmit(event) {
 }
 
 editFormElement.addEventListener("submit", handleEditFormSubmit);
-editFormElement.addEventListener("submit",  () => closeModal(popupTypeEdit));
+editFormElement.addEventListener("submit", () => closeModal(popupTypeEdit));
 
 /*обработка формы добавления карточки*/
 const addFormElement = document.forms["new-place"];
@@ -103,7 +97,7 @@ function handleAddFormSubmit(event) {
 }
 
 addFormElement.addEventListener("submit", handleAddFormSubmit);
-addFormElement.addEventListener("submit",  () => closeModal(popupTypeNewCard));
+addFormElement.addEventListener("submit", () => closeModal(popupTypeNewCard));
 addFormElement.addEventListener("submit", () => addFormElement.reset());
 
 /*открыть картинку*/
@@ -113,4 +107,3 @@ export function openImage(imagePath, tittle) {
   popupImage.alt = tittle;
   popupCaption.textContent = tittle;
 }
-

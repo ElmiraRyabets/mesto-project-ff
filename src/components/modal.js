@@ -11,13 +11,13 @@ export function openModal(popup) {
 }
 
 function closeModalByOverlay(event) {
-    if (event.target === event.currentTarget) {
-      closeModal(event.target);
-    } 
+  if (event.target === event.currentTarget) {
+    closeModal(event.target);
+  }
 }
 
 function closeModalByEsc(event) {
-  const popup = document.querySelector('.popup_is-opened');
+  const popup = document.querySelector(".popup_is-opened");
   if (event.key == "Escape") {
     closeModal(popup);
   }
