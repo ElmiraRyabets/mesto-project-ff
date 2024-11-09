@@ -1,32 +1,26 @@
-export function closeModal() {
-  let  popup = event.target.closest(".popup");
-  if (popup === null) {
-    popup = document.querySelector(".popup_is-opened");
-  }
+export function closeModal(popup) {
   popup.classList.remove("popup_is-opened");
-  /*при закрытии модалки - удаляем временные слушатели закрытия */
-  document.removeEventListener("click", closeModalByOverlay);
+  popup.removeEventListener("mousedown", closeModalByOverlay);
   document.removeEventListener("keydown", closeModalByEsc);
 }
 
 export function openModal(popup) {
   popup.classList.add("popup_is-opened");
-  popup.classList.add("popup_is-opened");
-  /*при открытии модалки - добавляем временные слушатели закрытия */
-  document.addEventListener("click", closeModalByOverlay);
+  popup.addEventListener("mousedown", closeModalByOverlay);
   document.addEventListener("keydown", closeModalByEsc);
-  event.stopImmediatePropagation();
 }
 
-function closeModalByOverlay() {
+function closeModalByOverlay(event) {
+  const popup = document.querySelector('.popup_is-opened');
   const popupContent = event.target.closest(".popup__content");
   if (popupContent === null) {
-    closeModal();
+    closeModal(popup);
   }
 }
 
-function closeModalByEsc() {
+function closeModalByEsc(event) {
+  const popup = document.querySelector('.popup_is-opened');
   if (event.key == "Escape") {
-    closeModal();
+    closeModal(popup);
   }
 }
