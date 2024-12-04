@@ -29,8 +29,6 @@ export function getCards() {
 }
 
 export function updateUser(userName, userAbout) {
-  console.log(userName);
-  console.log(userAbout);
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers,
     method: "PATCH",
