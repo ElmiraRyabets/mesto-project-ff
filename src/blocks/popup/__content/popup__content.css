@@ -17,3 +17,7 @@
     padding: 30px 20px;
   }
 }
+
+.update_avatar_popup_content {
+  min-height: 272px;
+}
