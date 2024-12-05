@@ -6,14 +6,15 @@ const config = {
   },
 };
 
+function checkResponse (res) {
+  return res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
+};
+
 export function getUser() {
   return fetch(`${config.baseUrl}/users/me `, {
     headers: config.headers,
   }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res);
   });
 }
 
@@ -21,10 +22,7 @@ export function getCards() {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers,
   }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res);
   });
 }
 
@@ -37,10 +35,7 @@ export function updateUser(userName, userAbout) {
       about: userAbout,
     }),
   }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res);
   });
 }
 
@@ -53,10 +48,7 @@ export function postCard(name, link) {
       link,
     }),
   }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res);
   });
 }
 
@@ -65,10 +57,7 @@ export function removeCard(cardId) {
     headers: config.headers,
     method: "DELETE",
   }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res);
   });
 }
 
@@ -77,10 +66,7 @@ export function likeCard(cardId) {
     headers: config.headers,
     method: "PUT",
   }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res);
   });
 }
 
@@ -89,10 +75,7 @@ export function unlikeCard(cardId) {
     headers: config.headers,
     method: "DELETE",
   }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res);
   });
 }
 
@@ -104,9 +87,6 @@ export function updateUserAvatar(url) {
       avatar: url,
     }),
   }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res);
   });
 }

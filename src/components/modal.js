@@ -17,8 +17,7 @@ function closeModalByOverlay(event) {
 }
 
 function closeModalByEsc(event) {
-  const popup = document.querySelector(".popup_is-opened");
   if (event.key == "Escape") {
-    closeModal(popup);
+    closeModal(document.querySelector(".popup_is-opened"));
   }
 }

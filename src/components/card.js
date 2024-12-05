@@ -5,11 +5,12 @@ export function createCard(
   cardTemplate,
   openImage,
   likeCounter,
-  isDeleteButtonActive,
   removeCard,
   cardId,
   processLike,
-  isLikedByMe
+  isLikedByMe,
+  userId,
+  myUserId
 ) {
   const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
   const likeButton = cardElement.querySelector(".card__like-button");
@@ -19,13 +20,28 @@ export function createCard(
   /*отображаем актуальное состояние карточки, полученное с сервера*/
   displayLike(likeButton, isLikedByMe);
   displayLikesCounter(likeCounter, cardElement, counterElement);
+
+  let isDeleteButtonActive;
+  if (userId === myUserId) {
+    isDeleteButtonActive = true;
+  } else {
+    isDeleteButtonActive = false;
+  }
+
   const cardImage = cardElement.querySelector(".card__image");
   const textArea = cardElement.querySelector(".card__title");
   cardImage.src = imagePath;
   textArea.textContent = title;
   const deleteButton = cardElement.querySelector(".card__delete-button");
-  deleteButton.addEventListener("click", () => deleteCard(cardElement));
-  deleteButton.addEventListener("click", () => removeCard(cardId));
+  deleteButton.addEventListener("click", () => {
+    removeCard(cardId)
+      .then(() => {
+        deleteCard(cardElement);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
   likeButton.addEventListener("click", () =>
     processLike(cardId, likeButton, cardElement, counterElement)
   );
@@ -58,4 +74,17 @@ export function isMyCardLikeDisplay(likeButton) {
   } else {
     return false;
   }
+}
+
+export function isCardLikedByMe(cardResponse, myUserId) {
+  let response = false;
+  const cardLikesOwners = cardResponse.likes;
+  if (cardResponse.likes != null) {
+    cardLikesOwners.forEach((owner) => {
+      if (owner._id === myUserId) {
+        response = true;
+      }
+    });
+  }
+  return response;
 }

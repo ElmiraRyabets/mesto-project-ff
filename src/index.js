@@ -4,6 +4,7 @@ import {
   displayLike,
   displayLikesCounter,
   isMyCardLikeDisplay,
+  isCardLikedByMe,
 } from "./components/card.js";
 import { openModal, closeModal } from "./components/modal.js";
 import { clearValidation, enableValidation } from "./components/validation.js";
@@ -25,7 +26,7 @@ const popupCaption = popupTypeImage.querySelector(".popup__caption");
 
 const cardsContainer = document.querySelector(".places__list");
 const cardTemplate = document.querySelector("#card-template").content;
-var myUserId;
+let myUserId;
 
 function setLoadingTextToButton(button, isLoading) {
   if (isLoading) {
@@ -33,19 +34,6 @@ function setLoadingTextToButton(button, isLoading) {
   } else {
     button.textContent = "Сохранить";
   }
-}
-
-function isCardLikedByMe(cardResponse) {
-  var response = false;
-  const cardLikesOwners = cardResponse.likes;
-  if (cardResponse.likes != null) {
-    cardLikesOwners.forEach((owner) => {
-      if (owner._id === myUserId) {
-        response = true;
-      }
-    });
-  }
-  return response;
 }
 
 function processLike(cardId, likeButton, cardElement, counterElement) {
@@ -80,12 +68,6 @@ function addCard(
   cardId,
   isLikedByMe
 ) {
-  var isDeleteButtonActive;
-  if (userId === myUserId) {
-    isDeleteButtonActive = true;
-  } else {
-    isDeleteButtonActive = false;
-  }
   const cardElement = createCard(
     url,
     name,
@@ -93,11 +75,12 @@ function addCard(
     cardTemplate,
     openImage,
     likeCounter,
-    isDeleteButtonActive,
     removeCard,
     cardId,
     processLike,
-    isLikedByMe
+    isLikedByMe,
+    userId,
+    myUserId
   );
   if (isFirstElement) {
     cardsContainer.prepend(cardElement);
@@ -111,10 +94,17 @@ const jobInput = document.querySelector(".popup__input_type_description");
 const updatedAvatar = document.querySelector(
   ".popup__input_type_update-avatar"
 );
-
 const profileImage = document.querySelector(".profile__image");
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
+const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
+};
 
 function setProfile(name, description, avatar) {
   profileTitle.textContent = name;
@@ -123,17 +113,10 @@ function setProfile(name, description, avatar) {
 }
 
 function setInitialProfileAndCardsInfo() {
-  getUser()
-    .then((user) => {
+  Promise.all([getUser(), getCards()])
+    .then(([user, cards]) => {
       setProfile(user.name, user.about, user.avatar);
       myUserId = user._id;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-
-  getCards()
-    .then((cards) => {
       cards.forEach((card) => {
         addCard(
           card.name,
@@ -142,7 +125,7 @@ function setInitialProfileAndCardsInfo() {
           card.likes.length,
           card.owner._id,
           card._id,
-          isCardLikedByMe(card)
+          isCardLikedByMe(card, myUserId)
         );
       });
     })
@@ -164,14 +147,7 @@ profileEditButton.addEventListener("click", profileEditButtonEventListener);
 function profileEditButtonEventListener(event) {
   setProfileInfo();
   const form = popupTypeEdit.querySelector(".popup__form");
-  clearValidation(
-    form,
-    ".popup__input",
-    ".popup__button",
-    "popup__button_disabled",
-    "popup__input_type_error",
-    "popup__error_visible"
-  );
+  clearValidation(form, validationConfig);
   openModal(popupTypeEdit);
   event.stopImmediatePropagation();
 }
@@ -183,14 +159,7 @@ profileAddButton.addEventListener("click", profileAddButtonEventListener);
 
 function profileAddButtonEventListener(event) {
   const form = popupTypeNewCard.querySelector(".popup__form");
-  clearValidation(
-    form,
-    ".popup__input",
-    ".popup__button",
-    "popup__button_disabled",
-    "popup__input_type_error",
-    "popup__error_visible"
-  );
+  clearValidation(form, validationConfig);
   openModal(popupTypeNewCard);
   event.stopImmediatePropagation();
 }
@@ -203,14 +172,7 @@ profileImageButton.addEventListener("click", profileImageButtonEventListener);
 
 function profileImageButtonEventListener(event) {
   const form = popupTypeUpdateAvatar.querySelector(".popup__form");
-  clearValidation(
-    form,
-    ".popup__input",
-    ".popup__button",
-    "popup__button_disabled",
-    "popup__input_type_error",
-    "popup__error_visible"
-  );
+  clearValidation(form, validationConfig);
   openModal(popupTypeUpdateAvatar);
   event.stopImmediatePropagation();
 }
@@ -227,6 +189,9 @@ function handleUpdateAvatarFormSubmit(event) {
     .then(() => {
       profileImage.style.backgroundImage = `url(${updatedAvatar.value})`;
     })
+    .then(() => {
+      closeModal(popupTypeUpdateAvatar);
+    })
     .catch((err) => {
       console.log(err);
     })
@@ -238,9 +203,6 @@ function handleUpdateAvatarFormSubmit(event) {
 updateAvatarFormElement.addEventListener(
   "submit",
   handleUpdateAvatarFormSubmit
-);
-updateAvatarFormElement.addEventListener("submit", () =>
-  closeModal(popupTypeUpdateAvatar)
 );
 
 /*Закрытие всех модалок по крестику*/
@@ -266,6 +228,9 @@ function handleEditFormSubmit(event) {
     .then((updatedUser) => {
       setProfile(updatedUser.name, updatedUser.about, updatedUser.avatar);
     })
+    .then(() => {
+      closeModal(popupTypeEdit);
+    })
     .catch((err) => {
       console.log(err);
     })
@@ -275,7 +240,6 @@ function handleEditFormSubmit(event) {
 }
 
 editFormElement.addEventListener("submit", handleEditFormSubmit);
-editFormElement.addEventListener("submit", () => closeModal(popupTypeEdit));
 
 /*обработка формы добавления карточки*/
 const addFormElement = document.forms["new-place"];
@@ -296,8 +260,10 @@ function handleAddFormSubmit(event) {
         updatedCard.likes.length,
         updatedCard.owner._id,
         updatedCard._id,
-        isCardLikedByMe(updatedCard)
+        isCardLikedByMe(updatedCard, myUserId)
       );
+      closeModal(popupTypeNewCard);
+      addFormElement.reset();
     })
     .catch((err) => {
       console.log(err);
@@ -308,8 +274,6 @@ function handleAddFormSubmit(event) {
 }
 
 addFormElement.addEventListener("submit", handleAddFormSubmit);
-addFormElement.addEventListener("submit", () => closeModal(popupTypeNewCard));
-addFormElement.addEventListener("submit", () => addFormElement.reset());
 
 /*открыть картинку*/
 export function openImage(imagePath, tittle) {
@@ -320,11 +284,4 @@ export function openImage(imagePath, tittle) {
 }
 
 setInitialProfileAndCardsInfo();
-enableValidation(
-  ".popup__form",
-  ".popup__input",
-  ".popup__button",
-  "popup__button_disabled",
-  "popup__input_type_error",
-  "popup__error_visible"
-);
+enableValidation(validationConfig);
